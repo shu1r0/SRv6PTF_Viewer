@@ -1,13 +1,8 @@
 /**
- * 仮想的なネットワークに関するモジュール
+ * Cytscape js のラッパー
  * 
- * Cytoscapeのラッパークラスを用意する．
- * 
- * ## Style
- * 仮想ネットワークでは，スイッチなどのデバイス画像以外は，クラスによりスタイルを決定する．
- * スタイルについては，`https://github.com/cytoscape/cytoscape.js/blob/b9b0797c85e8bf8e8c071b0acd08d0b4e790de19/documentation/md/style.md`_ を参照．
- * 
- * ## Multi Virtual Network
+ * ## ref:
+ *  * スタイルについては，`https://github.com/cytoscape/cytoscape.js/blob/b9b0797c85e8bf8e8c071b0acd08d0b4e790de19/documentation/md/style.md`_ を参照．
  */
 
 import cytoscape, { EventObject, Core, CollectionReturnValue, CytoscapeOptions, NodeSingular, EdgeSingular, ElementDefinition, CollectionArgument } from 'cytoscape'
@@ -36,22 +31,22 @@ export class SRv6Network{
   /**
    * Element Definitions of host
    */
-  hosts: Host[]
+  private hosts: Host[]
 
   /**
    * Element Definitions of host
    */
-  srv6Nodes: SRv6Node[]
+  private srv6Nodes: SRv6Node[]
 
   /**
    * Element Definitions of link
    */
-  links: Link[]
+  private links: Link[]
 
   /**
    * others
    */
-  other_elements: NetElement[]
+  private otherElements: NetElement[]
 
   constructor(element: HTMLElement, style?: cytoscape.Stylesheet[] | Promise<cytoscape.Stylesheet[]>){
     this.options = {}
@@ -83,7 +78,7 @@ export class SRv6Network{
     this.hosts = []
     this.srv6Nodes = []
     this.links = []
-    this.other_elements = []
+    this.otherElements = []
   }
 
   /**
@@ -91,6 +86,8 @@ export class SRv6Network{
    */
   addNetElement(element: NetElement):NetElement {
     const r = this.cytoscape.add(Object.assign(element))
+    console.debug("NetElement" + "(" + element.getName() + ")" +" was added to Cytoscape.")
+
     const returnValue = Object.assign(element, r)
 
     // add element to list
@@ -101,7 +98,7 @@ export class SRv6Network{
     }else if(returnValue instanceof Link){
       this.links.push(returnValue)
     }else {
-      this.other_elements.push(returnValue)
+      this.otherElements.push(returnValue)
     }
 
     return returnValue
@@ -112,8 +109,12 @@ export class SRv6Network{
    * @param id id
    * @returns 
    */
-  addHost(id: string): Host {
+  addHost(id: string, x?: number, y?: number): Host {
     const host = new Host(id)
+    host.position = {
+      x: x ?? this.cytoscape.width() / 2 + Math.random()*500,
+      y: y ?? this.cytoscape.height() / 2 + Math.random()*200
+    }
     return this.addNetElement(host)
   }
 
@@ -122,8 +123,12 @@ export class SRv6Network{
    * @param id id
    * @returns 
    */
-  addSRv6Node(id: string): SRv6Node {
+  addSRv6Node(id: string, x?: number, y?: number): SRv6Node {
     const srv6Node = new SRv6Node(id)
+    srv6Node.position = {
+      x: x ?? this.cytoscape.width() / 2 + Math.random()*500,
+      y: y ?? this.cytoscape.height() / 2 + Math.random()*200
+    }
     return this.addNetElement(srv6Node)
   }
 
@@ -136,7 +141,6 @@ export class SRv6Network{
   addLink(node1: string, node2: string, id?: string): Link {
     id = id ?? this.getDefaultLinkId(node1, node2)
     const link = new Link(id, node1, node2)
-    console.log(link)
     return this.addNetElement(link) as Link
   }
 
@@ -159,8 +163,8 @@ export class SRv6Network{
       const index = this.links.indexOf(element)
       return this.links.splice(index, 1)[0]
     }else if(element instanceof NetElement){
-      const index = this.other_elements.indexOf(element)
-      return this.other_elements.splice(index, 1)[0]
+      const index = this.otherElements.indexOf(element)
+      return this.otherElements.splice(index, 1)[0]
     }else {
       throw Error
     }
@@ -180,12 +184,28 @@ export class SRv6Network{
     return null
   }
 
+  getHosts(): Host[] {
+    return this.hosts
+  }
+
+  getSRv6Nodes(): SRv6Node[] {
+    return this.srv6Nodes
+  }
+
+  getLinks(): Link[] {
+    return this.links
+  }
+
+  getOtherElements(): NetElement[] {
+    return this.otherElements
+  }
+
   /**
    * get all element
    * @returns 
    */
   getAllNetElements(): NetElement[] {
-    return this.hosts.concat(this.srv6Nodes).concat(this.links).concat(this.other_elements)
+    return this.hosts.concat(this.srv6Nodes).concat(this.links).concat(this.otherElements)
   }
 
   /**
@@ -233,12 +253,10 @@ export class SRv6Network{
 
   /**
    * Set Tap Event
-   * @param events 
-   * @param selector 
    * @param handler 
    * @returns 
    */
-  onTapNode(handler: (event: EventObject) => void): SRv6Network {
+  onTapNodes(handler: (event: EventObject) => void): SRv6Network {
     this.cytoscape.on("tap", "nodes", handler)
     return this
   }

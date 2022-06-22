@@ -24,6 +24,10 @@ export default defineComponent({
   setup(props, ctx){
     
 
+    // const onGetNodes = (nodes: string[]) => {
+    //   // pass
+    // }
+
     onMounted(() => {
       const netElement = document.getElementById("net_canvas")
       const net = new SRv6Network(netElement as HTMLElement)

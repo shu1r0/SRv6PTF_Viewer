@@ -34,6 +34,9 @@ export class NetElement implements ElementDefinition{
   }
 }
 
+/**
+ * Host on Cytoscape
+ */
 export class Host extends NetElement {
 
   constructor(id: string){
@@ -49,6 +52,9 @@ export class Host extends NetElement {
   }
 }
 
+/**
+ * SRv6 Node on Cytoscape
+ */
 export class SRv6Node extends NetElement {
 
   constructor(id: string){
@@ -65,6 +71,9 @@ export class SRv6Node extends NetElement {
 
 }
 
+/**
+ * Link on Cytoscape
+ */
 export class Link extends NetElement {
 
   constructor(id: string, node1: string, node2: string){
@@ -84,6 +93,9 @@ export class Link extends NetElement {
   }
 }
 
+/**
+ * Packet Arc on CYtoscape
+ */
 export class PacketArc extends Link{
 
   constructor(id: string, src: string, dst: string){

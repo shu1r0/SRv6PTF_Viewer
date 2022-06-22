@@ -21,7 +21,7 @@ export class WSClient {
   /**
    * Socket
    */
-  private socket: Socket;
+  private socket: Socket
 
   /**
    * Web Socket Namespace
@@ -89,19 +89,36 @@ export class WSClient {
     })
   }
 
-  getLinks(callback: (links: string[]) => void){
-    this.emit("get_links", "", (data: string) => {
-      const linkRes = JSON.parse(data)
-      const links = linkRes.links
-      callback(links)
+  /**
+   * get nodes
+   * @param callback 
+   */
+   getNodes(callback: (nodes: string[]) => void){
+    this.emit("get_nodes", "", (data: string) => {
+      const nodeRes = JSON.parse(data)
+      callback(nodeRes)
     })
   }
 
+  /**
+   * get links
+   * @param callback 
+   */
+  getLinks(callback: (links: string[]) => void){
+    this.emit("get_links", "", (data: string) => {
+      const linkRes = JSON.parse(data)
+      callback(linkRes)
+    })
+  }
+
+  /**
+   * get SRv6 Paths
+   * @param callback 
+   */
   getSRv6Paths(callback: (paths: string[]) => void){
     this.emit("get_paths", "", (data: string) => {
       const pathRes = JSON.parse(data)
-      const paths = pathRes.paths
-      callback(paths)
+      callback(pathRes)
     })
   }
 

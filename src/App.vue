@@ -4,7 +4,8 @@
   </header>
 
    <div id="wrapper">
-     <router-view/>
+     <router-view 
+     :client="remoteClient"/>
    </div>
  
 </template>
@@ -14,6 +15,9 @@ import { defineComponent, onMounted } from "vue";
 import { WSClient } from "./scripts/remote/remoteClient";
 
 // import PathView from "@/views/PathView.vue"
+
+const WEBSOCKET_IPADDRESS = "127.0.0.1"
+const WEBSOCKET_PORT = "6001"
 
 export default defineComponent({
   name: "App",
@@ -26,7 +30,7 @@ export default defineComponent({
     /**
      * remote client and set client to vnet
      */
-    let remoteClient = new WSClient("127.0.0.1", "6001")
+    const remoteClient = new WSClient(WEBSOCKET_IPADDRESS, WEBSOCKET_PORT)
 
     onMounted(() => {
       /**
@@ -34,6 +38,10 @@ export default defineComponent({
        */
       // remoteClient.connect()
     })
+
+    return {
+      remoteClient
+    }
   }
 })
 </script>
