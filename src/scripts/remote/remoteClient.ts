@@ -93,7 +93,7 @@ export class WSClient {
    * get nodes
    * @param callback 
    */
-   getNodes(callback: (nodes: string[]) => void){
+  getNodes(callback: (nodeRes: any) => void){
     this.emit("get_nodes", "", (data: string) => {
       const nodeRes = JSON.parse(data)
       callback(nodeRes)
@@ -104,7 +104,7 @@ export class WSClient {
    * get links
    * @param callback 
    */
-  getLinks(callback: (links: string[]) => void){
+  getLinks(callback: (linkRes: any) => void){
     this.emit("get_links", "", (data: string) => {
       const linkRes = JSON.parse(data)
       callback(linkRes)
@@ -115,7 +115,7 @@ export class WSClient {
    * get SRv6 Paths
    * @param callback 
    */
-  getSRv6Paths(callback: (paths: string[]) => void){
+  getSRv6Paths(callback: (pathRes: any) => void){
     this.emit("get_paths", "", (data: string) => {
       const pathRes = JSON.parse(data)
       callback(pathRes)

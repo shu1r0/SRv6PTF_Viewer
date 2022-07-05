@@ -1,6 +1,6 @@
 <template>
   <header id="header">
-    <h1>PTF Viewer</h1>
+    <h1>SRv6 PTF Viewer</h1>
   </header>
 
    <div id="wrapper">
@@ -17,7 +17,7 @@ import { WSClient } from "./scripts/remote/remoteClient";
 // import PathView from "@/views/PathView.vue"
 
 const WEBSOCKET_IPADDRESS = "127.0.0.1"
-const WEBSOCKET_PORT = "6001"
+const WEBSOCKET_PORT = "8888"
 
 export default defineComponent({
   name: "App",
@@ -25,7 +25,7 @@ export default defineComponent({
     /**
      * document title
      */
-    document.title = "PTF Viewer"
+    document.title = "SRv6 PTF Viewer"
 
     /**
      * remote client and set client to vnet
@@ -49,7 +49,7 @@ export default defineComponent({
 <style lang="scss">
 
 html {
-  font-size: 62.5%; /* 1rem -> 10px */
+  font-size: 62.5%;  /* 1rem -> 10px */
 }
 
 #app {

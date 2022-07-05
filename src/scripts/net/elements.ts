@@ -63,9 +63,9 @@ export class SRv6Node extends NetElement {
     this.classes = "srv6-node"
     this.style = {
       'shape': 'rectangle',
-      'height': 51,
-      'width': 102,
-      'background-image': 'img/workgroup_switch.jpg'
+      'height': 52,
+      'width': 77,
+      'background-image': 'img/router.jpg'
     }
   }
 

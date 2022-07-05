@@ -6,7 +6,7 @@
  */
 
 import cytoscape, { EventObject, Core, CollectionReturnValue, CytoscapeOptions, NodeSingular, EdgeSingular, ElementDefinition, CollectionArgument } from 'cytoscape'
-import { Host, SRv6Node, Link, NetElement } from './elements'
+import { Host, SRv6Node, Link, NetElement, PacketArc } from './elements'
 // @ts-ignore
 import gtip from 'cytoscape-qtip'
 
@@ -145,6 +145,18 @@ export class SRv6Network{
   }
 
   /**
+   * add edge
+   * 
+   * @param node1 : node1
+   * @param node2 : node2
+   */
+  addPacketArc(node1: string, node2: string, id?: string): PacketArc {
+    id = id ?? this.getDefaultPacketArcId(node1, node2)
+    const packetArc = new PacketArc(id, node1, node2)
+    return this.addNetElement(packetArc) as PacketArc
+  }
+
+  /**
    * remove element
    * 
    * @param id : removed element id
@@ -165,13 +177,17 @@ export class SRv6Network{
     }else if(element instanceof NetElement){
       const index = this.otherElements.indexOf(element)
       return this.otherElements.splice(index, 1)[0]
-    }else {
-      throw Error
     }
+
+    throw Error("No Such NetElement (" + id + ")")
   }
 
   /**
    * get NetElement
+   * 
+   * Notes:
+   *  * 返り値のnullは，Elementが存在しているかどうかの判定に使用する
+   * 
    * @param id 
    * @returns 
    */
@@ -182,6 +198,10 @@ export class SRv6Network{
       }
     })
     return null
+  }
+
+  isNetElement(id: string): boolean {
+    return this.getNetElement(id) !== null
   }
 
   getHosts(): Host[] {
@@ -233,6 +253,20 @@ export class SRv6Network{
    */
   private getDefaultLinkId(node1: string, node2: string): string {
     let id = "l-" + node1 + node2
+    if(this.getNetElement(id) !== null) {
+      id += Math.random()
+    }
+    return id
+  }
+
+  /**
+   * get default packetArc id
+   * @param node1 {string}
+   * @param node2 {string}
+   * @returns 
+   */
+   private getDefaultPacketArcId(node1: string, node2: string): string {
+    let id = "arc-" + node1 + node2
     if(this.getNetElement(id) !== null) {
       id += Math.random()
     }
