@@ -156,6 +156,10 @@ export class SRv6Network{
     return this.addNetElement(packetArc) as PacketArc
   }
 
+  remove(eles: string | cytoscape.CollectionArgument){
+    return this.cytoscape.remove(eles)
+  }
+
   /**
    * remove element
    * 
@@ -163,7 +167,7 @@ export class SRv6Network{
    */
   removeNetElement(id: string): NetElement {
     const element = this.getNetElement(id)
-    this.cytoscape.remove(this.cytoscape.$id(id))
+    this.remove(this.cytoscape.$id(id))
 
     if(element instanceof Host){
       const index = this.hosts.indexOf(element)
@@ -180,6 +184,14 @@ export class SRv6Network{
     }
 
     throw Error("No Such NetElement (" + id + ")")
+  }
+
+  removeAllElement(): void {
+    this.remove("*")
+    this.hosts = []
+    this.srv6Nodes = []
+    this.links = []
+    this.otherElements = []
   }
 
   /**

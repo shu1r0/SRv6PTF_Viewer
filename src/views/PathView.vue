@@ -24,6 +24,7 @@
 <script lang="ts">
 import { defineComponent, Ref, ref, onActivated, onDeactivated, onMounted, PropType } from 'vue'
 import { SRv6Network } from '@/scripts/net/net'
+import { NetElement } from '@/scripts/net/elements'
 import { WSClient } from '@/scripts/remote/remoteClient'
 
 import packetListVue, { PacketAndPath } from '@/components/pathView/packetList.vue'
@@ -64,6 +65,7 @@ export default defineComponent({
     }
 
     const updateTopology = () => {
+      net?.removeAllElement()
       props.client?.getNodes(onGetNodes)
       props.client?.getLinks(onGetLinks)
     }
@@ -101,7 +103,12 @@ export default defineComponent({
       net.addPacketArc("r5", "r6")
     })
 
-    const onClickPacket = (pap: PacketAndPath) => {
+    const onClickPacket = (event: any) => {
+      // remove path
+      net?.remove(".packet-arc")
+
+      // draw path
+      const pap: PacketAndPath = event.packetAndPath
       for(let i = 0; i < pap.path.length - 1; i++) {
         net?.addPacketArc(pap.path[i], pap.path[i+1])
       }
@@ -133,7 +140,7 @@ export default defineComponent({
         "net-canvas path-list"
         "net-canvas path-list";
       grid-auto-columns: 
-        minmax(70rem, 85rem)
+        minmax(70rem, auto)
         minmax(30rem, 50rem);
       grid-auto-rows: 
         minmax(20rem, 60rem)

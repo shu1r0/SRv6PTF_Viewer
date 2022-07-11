@@ -81,7 +81,7 @@ export class WSClient {
   protected emit(event: string, data: any, callback?: (d: any)=>void){
     console.log("try to emit event=" + event + " data=" + data)
     this.socket.emit(event, data, (data: any) => {
-      console.log(event + " response ")
+      console.log("#----------" + event + " response" + "----------#")
       console.log(data)
       if(callback){
         callback(data)
@@ -95,7 +95,7 @@ export class WSClient {
    */
   getNodes(callback: (nodeRes: any) => void){
     this.emit("get_nodes", "", (data: string) => {
-      const nodeRes = JSON.parse(data)
+      const nodeRes = data
       callback(nodeRes)
     })
   }
@@ -106,7 +106,7 @@ export class WSClient {
    */
   getLinks(callback: (linkRes: any) => void){
     this.emit("get_links", "", (data: string) => {
-      const linkRes = JSON.parse(data)
+      const linkRes = data
       callback(linkRes)
     })
   }
@@ -116,8 +116,8 @@ export class WSClient {
    * @param callback 
    */
   getSRv6Paths(callback: (pathRes: any) => void){
-    this.emit("get_paths", "", (data: string) => {
-      const pathRes = JSON.parse(data)
+    this.emit("get_srv6_paths", "", (data: string) => {
+      const pathRes = data
       callback(pathRes)
     })
   }

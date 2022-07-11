@@ -1,9 +1,15 @@
+<!-- 
+  todo:
+    * クラスにIDの情報を含める
+    
+ -->
+
 <template>
   <div id="packet-list" class="packet-list">
     <table id="packet-list-table">
       <tr>
-        <th>protocol</th>
-        <th>route</th>
+        <th>pakcet ID</th>
+        <th>fields</th>
       </tr>
 
       <tr
@@ -12,7 +18,7 @@
           :key="index"
           @click="emitClickPacket(pap)">
         <td>
-          {{ pap.timestamp }}
+          {{ pap.packetId.toString(16) }}
         </td>
         <td>
           {{ pap.packetText }}
@@ -26,6 +32,7 @@
 import { defineComponent, PropType, ref, watch } from 'vue'
 
 export interface PacketAndPath {
+  packetId: number
   packetText: string
   timestamp: number
   path: string[]
@@ -50,18 +57,27 @@ export default defineComponent({
         packetAndPath.value.push(pap)
       }
     }
+
+    const pktShowText = (pkt: any) => {
+      return `|IPv6 src=${pkt.IPv6.src} dst=${pkt.IPv6.dst}|` + ` SRH segs=[${pkt["IPv6 Option Header Segment Routing"].addresses}] sl=${pkt["IPv6 Option Header Segment Routing"].segleft}`
+    }
     
+    /**
+     *  SRv6 Path が変化したとき
+     */
     watch(() => props.srv6Paths, (newPaths, oldPaths) => {
       // reset packets
       packetAndPath.value = []
 
+      // クライントから取得したPathを表示用に変換
       newPaths?.forEach(path => {
         let tmpPathNode: string[] = []
         let tmpPacketAndPaths: PacketAndPath[] = []
 
         path.packets.forEach((packet: any) => {
           const pap: PacketAndPath = {
-            packetText: packet.packet_obj.toString(),
+            packetId: packet.packet_id,
+            packetText: pktShowText(packet.packet_obj),
             timestamp: packet.timestamp,
             path: []
           }
@@ -78,6 +94,8 @@ export default defineComponent({
     }, {deep: true})
 
     const emitClickPacket = (pap: PacketAndPath) => {
+      console.log("click packet")
+      console.log(pap)
       ctx.emit("clickPacket", {packetAndPath: pap})
     }
 
@@ -91,7 +109,7 @@ export default defineComponent({
 
 <style lang="scss">
 .packet-list{
-  font-size: 2rem;
+  font-size: 1.3rem;
   border: 1px solid $black;
   border-collapse: collapse;
 
