@@ -59,18 +59,19 @@ export class SRv6Network{
     },{
       selector: '.link',
       style: {
-        'background-opacity': 0.5,
+        'line-color': '#bbbbbb',
+        'width' : 2.5
       }
     },{
       selector: '.packet-arc',
       style: {
-        'target-arrow-color': '#ee2222',
+        'target-arrow-color': '#ff0033',
         'target-arrow-shape': 'triangle',
-        'line-color': '#ee2222',
+        'line-color': '#ff0033',
         'curve-style': 'bezier',
-        'width' : 5
+        'width' : 5,
         // 'control-point-distance': 10,
-        // 'z-index': 2,
+        // 'z-index': 0,
       }
     }]
     this.cytoscape = cytoscape(this.options)

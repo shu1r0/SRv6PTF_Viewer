@@ -4,6 +4,7 @@
       id="path-buttons">
         <button class="update-topology" @click="updateTopology()">update Topology</button>
         <button class="update-srv6paths" @click="updateSRv6Paths()">update SRv6 Paths</button>
+        <input type="text" name="columnNum" id="columnNum" v-model="columnNum">
     </div>
     <div 
       id="path-view"
@@ -15,19 +16,20 @@
 
       <packetListVue 
         :srv6Paths="srv6Paths"
-        @clickPacket="onClickPacket"></packetListVue>
+        @clickPacketPath="onClickPacketPath">
+      </packetListVue>
 
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, Ref, ref, onActivated, onDeactivated, onMounted, PropType } from 'vue'
+import { defineComponent, Ref, ref, onActivated, onDeactivated, onMounted, PropType, watch } from 'vue'
 import { SRv6Network } from '@/scripts/net/net'
 import { NetElement } from '@/scripts/net/elements'
 import { WSClient } from '@/scripts/remote/remoteClient'
 
-import packetListVue, { PacketAndPath } from '@/components/pathView/packetList.vue'
+import packetListVue from '@/components/pathView/packetList.vue'
 
 // import { DummyRemoteClient, RemoteClient } from '../api/remoteClient'
 // import { DEVICE_TYPE } from '@/vnet/devices'
@@ -44,10 +46,50 @@ export default defineComponent({
     let net: SRv6Network | undefined = undefined
     const srv6Paths: Ref<any[]> = ref<any[]>([])
 
+    // 初期のX，Y
+    const paddingX = 300
+    const paddingY = 300
+    // ノードの数
+    let nodeCounter = 0
+    // 列数
+    const columnNum = ref<any>([8])
+    // ノード間の距離
+    const betweenNodesX = 170
+    const betweenNodesY = 150
+
+    watch(columnNum, (newNum, oldNum) => {
+      columnNum.value = newNum.value.split(",").map((v: string) => {return parseInt(v, 10)})
+      if(!columnNum.value){
+        columnNum.value = [8]
+      }
+    })
+
     const onGetNodes = (nodes: any) => {
+      // columnNum.value = columnNum.value.split(",").map((v: string) => {return parseInt(v, 10)})
+      // if(!columnNum.value){
+      //   columnNum.value = [8]
+      // }
+      let rNum = 0
+      let cNum = columnNum.value[0]
+      let nodeCounterOnRaw = 0
+      console.log(columnNum.value)
+
       for(let node in nodes) {
         if (net) {
-          net.addSRv6Node(node)
+          const x = paddingX + betweenNodesX*(nodeCounter % cNum)
+          const y = paddingY + betweenNodesY*rNum
+          net.addSRv6Node(node, x, y)
+          nodeCounter++
+          nodeCounterOnRaw++
+
+          
+          let tmpColumn = rNum < columnNum.value.length ? columnNum.value[rNum] : columnNum.value[0]
+          if(nodeCounterOnRaw - tmpColumn == 0){
+            cNum = rNum+1 < columnNum.value.length ? columnNum.value[rNum+1] : columnNum.value[0]
+            rNum++
+            nodeCounterOnRaw = 0
+            // break
+          }
         }else{
           console.error("No SRv6Network instance")
         }
@@ -66,6 +108,7 @@ export default defineComponent({
 
     const updateTopology = () => {
       net?.removeAllElement()
+      nodeCounter = 0
       props.client?.getNodes(onGetNodes)
       props.client?.getLinks(onGetLinks)
     }
@@ -81,45 +124,29 @@ export default defineComponent({
     onMounted(() => {
       const netElement = document.getElementById("net-canvas")
       net = new SRv6Network(netElement as HTMLElement)
-      net.addSRv6Node("r1")
-      net.addSRv6Node("r2")
-      net.addSRv6Node("r3")
-      net.addSRv6Node("r4")
-      net.addSRv6Node("r5")
-      net.addSRv6Node("r6")
-
-      net.addLink("r1", "r2")
-      net.addLink("r1", "r3")
-      net.addLink("r2", "r3")
-      net.addLink("r2", "r4")
-      net.addLink("r3", "r5")
-      net.addLink("r4", "r5")
-      net.addLink("r4", "r6")
-      net.addLink("r5", "r6")
-
-      net.addPacketArc("r1", "r2")
-      net.addPacketArc("r2", "r3")
-      net.addPacketArc("r3", "r5")
-      net.addPacketArc("r5", "r6")
+      onGetNodes({"r1": {}, "r2": {}, "r3": {}, "r4": {}, "r5": {}, "r6": {}})
+      onGetLinks({
+        node_pairs: [["r1", "r2"], ["r1", "r3"], ["r2", "r3"], ["r2", "r4"], ["r3", "r5"], ["r4", "r5"], ["r4", "r6"], ["r5", "r6"]]
+      })
     })
 
-    const onClickPacket = (event: any) => {
+    const onClickPacketPath = (nodes: string[]) => {
       // remove path
       net?.remove(".packet-arc")
 
       // draw path
-      const pap: PacketAndPath = event.packetAndPath
-      for(let i = 0; i < pap.path.length - 1; i++) {
-        net?.addPacketArc(pap.path[i], pap.path[i+1])
+      for(let i = 0; i < nodes.length - 1; i++) {
+        net?.addPacketArc(nodes[i], nodes[i+1])
       }
     }
 
 
     return {
+      columnNum,
       updateTopology,
       updateSRv6Paths,
       srv6Paths,
-      onClickPacket
+      onClickPacketPath
     }
   }
 })

@@ -6,22 +6,30 @@
 
 <template>
   <div id="packet-list" class="packet-list">
+    <label for="path-only">display only path</label>
+    
+    <!-- render from ViewTable -->
     <table id="packet-list-table">
       <tr>
         <th>pakcet ID</th>
-        <th>fields</th>
+        <th
+          v-for="(head, index) in viewTable.header"
+          :key = "index"
+          >
+          {{ head }}
+        </th>
       </tr>
 
       <tr
           class="trace"
-          v-for="(pap, index) in packetAndPath"
+          v-for="(content, index) in viewTable.contents"
           :key="index"
-          @click="emitClickPacket(pap)">
-        <td>
-          {{ pap.packetId.toString(16) }}
-        </td>
-        <td>
-          {{ pap.packetText }}
+          @click="emitClickPacketPath(viewTable.paths[index])">
+        <td
+          v-for="index in viewTable.columnNum"
+          :key="index"
+          >
+          {{ content[index] }}
         </td>
       </tr>
     </table>
@@ -29,6 +37,7 @@
 </template>
 
 <script lang="ts">
+import { ViewPathTable, ViewTable } from '@/scripts/utils/path_view'
 import { defineComponent, PropType, ref, watch } from 'vue'
 
 export interface PacketAndPath {
@@ -43,65 +52,22 @@ export default defineComponent({
     srv6Paths: Object as PropType<any[]>
   },
   setup(props, ctx) {
-    
-    const packetAndPath = ref<PacketAndPath[]>([])
-    const addPacketAndPath = (pap: PacketAndPath) => {
-      let insert = false
-      for(let i = 0; i < packetAndPath.value.length; i++){
-        if(pap.timestamp < packetAndPath.value[i].timestamp){
-          packetAndPath.value.splice(1, 0, pap)
-          insert = true
-        }
-      }
-      if(!insert){
-        packetAndPath.value.push(pap)
-      }
-    }
+    const viewTable = ref<ViewPathTable>(new ViewPathTable())
 
-    const pktShowText = (pkt: any) => {
-      return `|IPv6 src=${pkt.IPv6.src} dst=${pkt.IPv6.dst}|` + ` SRH segs=[${pkt["IPv6 Option Header Segment Routing"].addresses}] sl=${pkt["IPv6 Option Header Segment Routing"].segleft}`
-    }
-    
-    /**
-     *  SRv6 Path が変化したとき
-     */
     watch(() => props.srv6Paths, (newPaths, oldPaths) => {
-      // reset packets
-      packetAndPath.value = []
-
-      // クライントから取得したPathを表示用に変換
+      viewTable.value.clear()
       newPaths?.forEach(path => {
-        let tmpPathNode: string[] = []
-        let tmpPacketAndPaths: PacketAndPath[] = []
-
-        path.packets.forEach((packet: any) => {
-          const pap: PacketAndPath = {
-            packetId: packet.packet_id,
-            packetText: pktShowText(packet.packet_obj),
-            timestamp: packet.timestamp,
-            path: []
-          }
-          tmpPacketAndPaths.push(pap)
-          tmpPathNode.push(packet.node)
-        })
-
-        // update packetAndPath
-        tmpPacketAndPaths.forEach(pap => {
-          pap.path = tmpPathNode
-          addPacketAndPath(pap)
-        })
+        viewTable.value.addPath(path.packets)
       })
     }, {deep: true})
 
-    const emitClickPacket = (pap: PacketAndPath) => {
-      console.log("click packet")
-      console.log(pap)
-      ctx.emit("clickPacket", {packetAndPath: pap})
+    const emitClickPacketPath = (nodes: string[]) => {
+      ctx.emit("clickPacketPath", nodes)
     }
 
     return {
-      packetAndPath,
-      emitClickPacket
+      viewTable,
+      emitClickPacketPath
     }
   },
 })
