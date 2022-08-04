@@ -35,7 +35,7 @@ export class ViewPathTable implements ViewTable{
   }
 
   addPath(packets: any[]){
-    let pathNodes: string[] = []
+    const pathNodes: string[] = []
     const firstPacketObj: any = packets[0].packet_obj
     const packetId: number = packets[0].packet_id
     let protocol = Object.keys(firstPacketObj)[0]
