@@ -16,7 +16,8 @@
 
       <packetListVue 
         :srv6Paths="srv6Paths"
-        @clickPacketPath="onClickPacketPath">
+        @clickPacketPath="onClickPacketPath"
+        @filteredPathsRequest="onFilteredPathsRequest">
       </packetListVue>
 
     </div>
@@ -113,11 +114,11 @@ export default defineComponent({
       props.client?.getLinks(onGetLinks)
     }
 
-    const updateSRv6Paths = () => {
-      props.client?.getSRv6Paths((pathRes => {
+    const updateSRv6Paths = (filter?: string) => {
+      props.client?.getSRv6Paths(pathRes => {
         const paths = pathRes.paths
         srv6Paths.value = paths
-      }))
+      }, filter)
     }
 
 
@@ -140,13 +141,17 @@ export default defineComponent({
       }
     }
 
+    const onFilteredPathsRequest = (filter: string) => {
+      updateSRv6Paths(filter)
+    }
 
     return {
       columnNum,
       updateTopology,
       updateSRv6Paths,
       srv6Paths,
-      onClickPacketPath
+      onClickPacketPath,
+      onFilteredPathsRequest
     }
   }
 })
@@ -164,14 +169,14 @@ export default defineComponent({
       display: grid;
 
       grid-template-areas: 
-        "net-canvas path-list"
-        "net-canvas path-list";
-      grid-auto-columns: 
-        minmax(70rem, auto)
-        minmax(30rem, 50rem);
+        "net-canvas"
+        " path-list";
+      // grid-auto-columns: 
+      //   minmax(70rem, auto)
+      //   minmax(30rem, 50rem);
       grid-auto-rows: 
         minmax(20rem, 60rem)
-        20rem;
+        minmax(20rem, auto);
 
     #net-canvas{
       grid-area: net-canvas;

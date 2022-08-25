@@ -115,8 +115,12 @@ export class WSClient {
    * get SRv6 Paths
    * @param callback 
    */
-  getSRv6Paths(callback: (pathRes: any) => void){
-    this.emit("get_srv6_paths", "", (data: string) => {
+  getSRv6Paths(callback: (pathRes: any) => void, filter?: string){
+    let data: any = ""
+    if(filter){
+      data = {mark_filter: filter}
+    }
+    this.emit("get_srv6_paths", data, (data: string) => {
       const pathRes = data
       callback(pathRes)
     })
