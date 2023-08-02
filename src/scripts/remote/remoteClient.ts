@@ -11,12 +11,12 @@ export class WSClient {
   /**
    * server ip address
    */
-   private ip: string
+  private ip: string
 
-   /**
+  /**
     * server port number
     */
-   private port: string
+  private port: string
 
   /**
    * Socket
@@ -28,7 +28,7 @@ export class WSClient {
    */
   private namespace = ""
 
-  constructor(ip: string, port: string, namespace?: string){
+  constructor(ip: string, port: string, namespace?: string) {
     this.ip = ip
     this.port = port
     this.namespace = namespace ?? ""
@@ -36,7 +36,7 @@ export class WSClient {
     this.setupEvent()
   }
 
-  setupEvent(){
+  setupEvent() {
     /**
      * all event
      */
@@ -50,18 +50,18 @@ export class WSClient {
     this.socket.on("connect", () => {
       console.log("connect!!")
     })
-    
+
     /**
      * disconnect event
      */
     this.socket.on("disconnect", () => {
       console.log("disconnect!!")
     })
-    
+
     /**
      * packet event
      */
-     this.socket.on("packet", () => {
+    this.socket.on("packet", () => {
       console.log("packet!!")
     })
   }
@@ -69,21 +69,21 @@ export class WSClient {
   /**
    * connect to server
    */
-  connect(){
+  connect() {
     this.socket.connect()
   }
-  
+
   /**
    * emit to server
    * @param event : event name
    * @param data : sent data
    */
-  protected emit(event: string, data: any, callback?: (d: any)=>void){
+  protected emit(event: string, data: any, callback?: (d: any) => void) {
     console.log("try to emit event=" + event + " data=" + data)
     this.socket.emit(event, data, (data: any) => {
       console.log("#----------" + event + " response" + "----------#")
       console.log(data)
-      if(callback){
+      if (callback) {
         callback(data)
       }
     })
@@ -93,7 +93,7 @@ export class WSClient {
    * get nodes
    * @param callback 
    */
-  getNodes(callback: (nodeRes: any) => void){
+  getNodes(callback: (nodeRes: any) => void) {
     this.emit("get_nodes", "", (data: string) => {
       const nodeRes = data
       callback(nodeRes)
@@ -104,7 +104,7 @@ export class WSClient {
    * get links
    * @param callback 
    */
-  getLinks(callback: (linkRes: any) => void){
+  getLinks(callback: (linkRes: any) => void) {
     this.emit("get_links", "", (data: string) => {
       const linkRes = data
       callback(linkRes)
@@ -115,10 +115,10 @@ export class WSClient {
    * get SRv6 Paths
    * @param callback 
    */
-  getSRv6Paths(callback: (pathRes: any) => void, filter?: string){
+  getSRv6Paths(callback: (pathRes: any) => void, filter?: string) {
     let data: any = ""
-    if(filter){
-      data = {mark_filter: filter}
+    if (filter) {
+      data = { mark_filter: filter }
     }
     this.emit("get_srv6_paths", data, (data: string) => {
       const pathRes = data
@@ -126,12 +126,12 @@ export class WSClient {
     })
   }
 
-  
+
   /**
    * target ip address
    * @returns string
    */
-  getIp(){
+  getIp() {
     return this.ip
   }
 
@@ -139,8 +139,8 @@ export class WSClient {
    * target port number
    * @returns string
    */
-  getPort(){
+  getPort() {
     return this.port
   }
-  
+
 }

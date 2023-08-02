@@ -16,7 +16,7 @@ gtip(cytoscape)
 /**
  * Cytoscape Wrapper
  */
-export class SRv6Network{
+export class SRv6Network {
 
   /**
    * cytoscape obj
@@ -48,7 +48,7 @@ export class SRv6Network{
    */
   private otherElements: NetElement[]
 
-  constructor(element: HTMLElement, style?: cytoscape.Stylesheet[] | Promise<cytoscape.Stylesheet[]>){
+  constructor(element: HTMLElement, style?: cytoscape.Stylesheet[] | Promise<cytoscape.Stylesheet[]>) {
     this.options = {}
     this.options.container = element
     this.options.style = style ?? [{
@@ -56,20 +56,20 @@ export class SRv6Network{
       style: {
         'label': 'data(name)'
       }
-    },{
+    }, {
       selector: '.link',
       style: {
         'line-color': '#bbbbbb',
-        'width' : 2.5
+        'width': 2.5
       }
-    },{
+    }, {
       selector: '.packet-arc',
       style: {
         'target-arrow-color': '#ff0033',
         'target-arrow-shape': 'triangle',
         'line-color': '#ff0033',
         'curve-style': 'bezier',
-        'width' : 5,
+        'width': 5,
         // 'control-point-distance': 10,
         // 'z-index': 0,
       }
@@ -85,20 +85,20 @@ export class SRv6Network{
   /**
    * Add NetElement
    */
-  addNetElement(element: NetElement):NetElement {
+  addNetElement(element: NetElement): NetElement {
     const r = this.cytoscape.add(Object.assign(element))
-    console.debug("NetElement" + "(" + element.getName() + ")" +" was added to Cytoscape.")
+    console.debug("NetElement" + "(" + element.getName() + ")" + " was added to Cytoscape.")
 
     const returnValue = Object.assign(element, r)
 
     // add element to list
-    if(returnValue instanceof Host){
+    if (returnValue instanceof Host) {
       this.hosts.push(returnValue)
-    }else if(returnValue instanceof SRv6Node){
+    } else if (returnValue instanceof SRv6Node) {
       this.srv6Nodes.push(returnValue)
-    }else if(returnValue instanceof Link){
+    } else if (returnValue instanceof Link) {
       this.links.push(returnValue)
-    }else {
+    } else {
       this.otherElements.push(returnValue)
     }
 
@@ -113,8 +113,8 @@ export class SRv6Network{
   addHost(id: string, x?: number, y?: number): Host {
     const host = new Host(id)
     host.position = {
-      x: x ?? this.cytoscape.width() / 2 + Math.random()*500,
-      y: y ?? this.cytoscape.height() / 2 + Math.random()*200
+      x: x ?? this.cytoscape.width() / 2 + Math.random() * 500,
+      y: y ?? this.cytoscape.height() / 2 + Math.random() * 200
     }
     return this.addNetElement(host)
   }
@@ -127,8 +127,8 @@ export class SRv6Network{
   addSRv6Node(id: string, x?: number, y?: number): SRv6Node {
     const srv6Node = new SRv6Node(id)
     srv6Node.position = {
-      x: x ?? this.cytoscape.width() / 2 + Math.random()*500,
-      y: y ?? this.cytoscape.height() / 2 + Math.random()*200
+      x: x ?? this.cytoscape.width() / 2 + Math.random() * 500,
+      y: y ?? this.cytoscape.height() / 2 + Math.random() * 200
     }
     return this.addNetElement(srv6Node)
   }
@@ -157,7 +157,7 @@ export class SRv6Network{
     return this.addNetElement(packetArc) as PacketArc
   }
 
-  remove(eles: string | cytoscape.CollectionArgument){
+  remove(eles: string | cytoscape.CollectionArgument) {
     return this.cytoscape.remove(eles)
   }
 
@@ -170,16 +170,16 @@ export class SRv6Network{
     const element = this.getNetElement(id)
     this.remove(this.cytoscape.$id(id))
 
-    if(element instanceof Host){
+    if (element instanceof Host) {
       const index = this.hosts.indexOf(element)
       return this.hosts.splice(index, 1)[0]
-    }else if(element instanceof SRv6Node){
+    } else if (element instanceof SRv6Node) {
       const index = this.srv6Nodes.indexOf(element)
       return this.srv6Nodes.splice(index, 1)[0]
-    }else if(element instanceof Link){
+    } else if (element instanceof Link) {
       const index = this.links.indexOf(element)
       return this.links.splice(index, 1)[0]
-    }else if(element instanceof NetElement){
+    } else if (element instanceof NetElement) {
       const index = this.otherElements.indexOf(element)
       return this.otherElements.splice(index, 1)[0]
     }
@@ -204,9 +204,9 @@ export class SRv6Network{
    * @param id 
    * @returns 
    */
-  getNetElement(id: string): NetElement | null{
+  getNetElement(id: string): NetElement | null {
     this.getAllNetElements().forEach(element => {
-      if(element.getId() === id){
+      if (element.getId() === id) {
         return element
       }
     })
@@ -246,7 +246,7 @@ export class SRv6Network{
    * 
    * @returns HTMLElement
    */
-  getContainer(){
+  getContainer() {
     return this.cytoscape.container()
   }
 
@@ -254,7 +254,7 @@ export class SRv6Network{
    * get Cytoscape
    * @returns Core
    */
-  getCytoscape(){
+  getCytoscape() {
     return this.cytoscape
   }
 
@@ -266,7 +266,7 @@ export class SRv6Network{
    */
   private getDefaultLinkId(node1: string, node2: string): string {
     let id = "l-" + node1 + node2
-    if(this.getNetElement(id) !== null) {
+    if (this.getNetElement(id) !== null) {
       id += Math.random()
     }
     return id
@@ -278,9 +278,9 @@ export class SRv6Network{
    * @param node2 {string}
    * @returns 
    */
-   private getDefaultPacketArcId(node1: string, node2: string): string {
+  private getDefaultPacketArcId(node1: string, node2: string): string {
     let id = "arc-" + node1 + node2
-    if(this.getNetElement(id) !== null) {
+    if (this.getNetElement(id) !== null) {
       id += Math.random()
     }
     return id

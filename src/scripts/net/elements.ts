@@ -4,7 +4,7 @@ import { Css, EdgeDataDefinition, ElementDefinition, ElementGroup, NodeDataDefin
 /**
  * Cytoscape用のインターフェース
  */
-export class NetElement implements ElementDefinition{
+export class NetElement implements ElementDefinition {
   group?: ElementGroup;
   data: NodeDataDefinition | EdgeDataDefinition;
   scratch?: any;
@@ -18,18 +18,18 @@ export class NetElement implements ElementDefinition{
   style?: any;
   css?: Css.Node | Css.Edge;
 
-  constructor(id: string){
+  constructor(id: string) {
     this.data = {
       id: id,
       name: id
     }
   }
 
-  getId(){
+  getId() {
     return this.data.id
   }
 
-  getName(){
+  getName() {
     return this.data.name
   }
 }
@@ -39,7 +39,7 @@ export class NetElement implements ElementDefinition{
  */
 export class Host extends NetElement {
 
-  constructor(id: string){
+  constructor(id: string) {
     super(id);
     this.group = "nodes"
     this.classes = "host"
@@ -47,7 +47,7 @@ export class Host extends NetElement {
       'shape': 'rectangle',
       'height': 62,
       'width': 75,
-      'background-image': 'img/workstation.jpg'
+      'background-image': 'static/img/workstation.jpg'
     }
   }
 }
@@ -57,7 +57,7 @@ export class Host extends NetElement {
  */
 export class SRv6Node extends NetElement {
 
-  constructor(id: string){
+  constructor(id: string) {
     super(id);
     this.group = "nodes"
     this.classes = "srv6-node"
@@ -65,7 +65,7 @@ export class SRv6Node extends NetElement {
       'shape': 'rectangle',
       'height': 52,
       'width': 77,
-      'background-image': 'img/router.jpg'
+      'background-image': 'static/img/router.jpg'
     }
   }
 
@@ -76,7 +76,7 @@ export class SRv6Node extends NetElement {
  */
 export class Link extends NetElement {
 
-  constructor(id: string, node1: string, node2: string){
+  constructor(id: string, node1: string, node2: string) {
     super(id);
     this.group = "edges"
     this.classes = "link"
@@ -84,11 +84,11 @@ export class Link extends NetElement {
     this.data.target = node2
   }
 
-  getNode1(){
+  getNode1() {
     return this.data.source
   }
 
-  getNode2(){
+  getNode2() {
     return this.data.target
   }
 }
@@ -96,18 +96,18 @@ export class Link extends NetElement {
 /**
  * Packet Arc on CYtoscape
  */
-export class PacketArc extends Link{
+export class PacketArc extends Link {
 
-  constructor(id: string, src: string, dst: string){
+  constructor(id: string, src: string, dst: string) {
     super(id, src, dst)
     this.classes = "link packet-arc"
   }
 
-  getSource(){
+  getSource() {
     return this.data.source
   }
 
-  getDestination(){
+  getDestination() {
     return this.data.target
   }
 }
