@@ -73,6 +73,12 @@ export class WSClient {
     this.socket.connect()
   }
 
+  disconnect() {
+    if (!this.socket.disconnected) {
+      this.socket.disconnect()
+    }
+  }
+
   /**
    * emit to server
    * @param event : event name
@@ -141,6 +147,22 @@ export class WSClient {
    */
   getPort() {
     return this.port
+  }
+
+  setIp(ip: string) {
+    this.disconnect()
+    this.socket.removeAllListeners()
+    this.ip = ip
+    this.socket = io('http://' + this.getIp() + ":" + this.getPort() + "/" + this.namespace)
+    this.setupEvent()
+  }
+
+  setPort(port: string) {
+    this.disconnect()
+    this.socket.removeAllListeners()
+    this.port = port
+    this.socket = io('http://' + this.getIp() + ":" + this.getPort() + "/" + this.namespace)
+    this.setupEvent()
   }
 
 }

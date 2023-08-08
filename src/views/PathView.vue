@@ -44,7 +44,9 @@ export default defineComponent({
   },
   setup(props, ctx){
     
+    // ネットワーク
     let net: SRv6Network | undefined = undefined
+    // 得られたpaths
     const srv6Paths: Ref<any[]> = ref<any[]>([])
 
     // 初期のX，Y
@@ -125,6 +127,8 @@ export default defineComponent({
     onMounted(() => {
       const netElement = document.getElementById("net-canvas")
       net = new SRv6Network(netElement as HTMLElement)
+
+      // サンプルのトポロジ図．
       onGetNodes({"r1": {}, "r2": {}, "r3": {}, "r4": {}, "r5": {}, "r6": {}})
       onGetLinks({
         node_pairs: [["r1", "r2"], ["r1", "r3"], ["r2", "r3"], ["r2", "r4"], ["r3", "r5"], ["r4", "r5"], ["r4", "r6"], ["r5", "r6"]]

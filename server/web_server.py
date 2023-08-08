@@ -5,7 +5,8 @@ app.config['SECRET_KEY'] = "keysecret!"
 
 
 @app.route('/')
-def index():
+@app.route('/<path:path>')
+def index(*args, **params):
     return render_template('index.html')
 
 
