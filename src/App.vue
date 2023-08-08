@@ -1,23 +1,39 @@
 <template>
   <header id="header">
-    <h1>SRv6 PTF Viewer</h1>
+    <h1 id="title">SRv6 PTF Viewer</h1>
+    <div id="nav">
+      <details>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+        <summary><span class="material-symbols-outlined">menu</span></summary>
+        <ul>
+          <li><a href="/">Viewer</a></li>
+          <li><a href="/home">HOME</a></li>
+        </ul>
+      </details>
+    </div>
   </header>
 
-   <div id="wrapper">
-     <router-view 
-     :client="remoteClient"/>
-   </div>
- 
+  <div id="wrapper">
+    <router-view v-slot="{ Component }" :client="remoteClient">
+      <keep-alive>
+        <component :is="Component" />
+      </keep-alive>
+    </router-view>
+  </div>
+
 </template>
 
 <script lang="ts">
 import { defineComponent, onMounted } from "vue";
 import { WSClient } from "./scripts/remote/remoteClient";
 
+//@ts-ignore
+import config from "./assets/viewer_config.json";
+
 // import PathView from "@/views/PathView.vue"
 
-const WEBSOCKET_IPADDRESS = "127.0.0.1"
-const WEBSOCKET_PORT = "8888"
+const WEBSOCKET_IPADDRESS = config.websocket.ip_address
+const WEBSOCKET_PORT = config.websocket.port
 
 export default defineComponent({
   name: "App",
@@ -71,42 +87,44 @@ html {
   
   #header{
     grid-area: header;
-    // background-color: #f0f0f9;
     border-bottom: 0.5rem solid $navy;
-    // padding: 1.5rem;
+
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+
     h1{
+      grid-column: 1;
       margin: 1rem 2rem;
       font-size: 2.5rem;
     }
+    #nav{
+      grid-column: 2;
+      font-size: 1rem;
+      text-align: right;
+      details{
+        display: block;
+        summary{
+          display: block;
+        }
+        ul{
+          background-color: $white;
+          // width: 10rem;
+          li{
+            list-style-type: none;
+            font-size: 1.5rem;
+          }
+        }
+      }
+    }
+    .material-symbols-outlined {
+      font-variation-settings:
+      'FILL' 0,
+      'wght' 400,
+      'GRAD' 0,
+      'opsz' 48
+    } 
   }
 
-  // #nav {
-  //   grid-area: nav;
-  //   border-right: 1px solid $navy;
-  //   background-color: $white;
-  //   word-break : break-all;  // refrain
-  //   font-size: 1.3rem;
-  //   // padding: 30px;
-
-  //   .nav-item{
-  //     display: grid;
-  //     background-color: $white;
-  //     width: 5rem;
-  //     height: 5rem;
-  //     justify-items: center;
-
-  //     a {
-  //       font-weight: bold;
-  //       color: $navy;
-  //       border: 1px solid $navy;
-  //     }
-  //     a.router-link-exact-active {
-  //       color: $white;
-  //       background-color: $navy;
-  //       border: 2px solid $navy;
-  //     }
-  //   }
-  // }
 
   #wrapper{
     grid-area: wrapper;

@@ -1,0 +1,6 @@
+{
+  "websocket": {
+    "ip_address": "172.0.0.1",
+    "port": "8888"
+  }
+}
