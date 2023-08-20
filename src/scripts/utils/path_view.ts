@@ -11,9 +11,14 @@ type ViewContents = ViewContent[]
 
 export interface ViewTable {
   columnNum: number,
+  // table header
   header: ViewHeader,
+  // table row contents
   contents: ViewContents
-  paths: string[][]
+  // css class
+  classes: string[][]
+
+  getContentPaths(index: number): string[] | string[][]
 }
 
 
@@ -36,6 +41,10 @@ export class ViewPathTable implements ViewTable {
     this.contents = []
     this.paths = []
     this.classes = []
+  }
+
+  getContentPaths(index: number): string[] | string[][] {
+    return this.paths[index]
   }
 
   clear() {
@@ -77,6 +86,46 @@ export class ViewPathTable implements ViewTable {
       [packetId.toString(), protocol, pathNodes.join(" -> "), showPacketInfoForView(packetInfo)]
     )
     this.paths.push(pathNodes)
+  }
+}
+
+export class ViewFlowTable implements ViewTable {
+  columnNum: number
+  header: ViewHeader
+  contents: ViewContents
+  flowPaths: string[][][]
+  classes: string[][]
+
+  constructor() {
+    this.columnNum = 3
+    this.header = ["Protocol", "Count", "Flow (ipdst, ipsrc, dport, sport, proto)"]
+    this.contents = []
+    this.flowPaths = []
+    this.classes = []
+  }
+
+  getContentPaths(index: number): string[] | string[][] {
+    return this.flowPaths[index]
+  }
+
+  clear() {
+    this.contents = []
+  }
+
+  addFlow(flow: any, styleClass?: string) {
+    const flowFiled: any = flow.flow_keys
+    const flowPaths: string[][] = flow.paths
+
+    // add
+    this.addToContents(flowFiled.protocol, flowPaths.length, flowFiled, flowPaths)
+    this.classes.push(["trace", styleClass ?? ""])
+  }
+
+  private addToContents(protocol: number, count: number, flowKeys: any, paths: string[][]) {
+    this.contents.push(
+      [protocol.toString(), count.toString(), flowKeys]
+    )
+    this.flowPaths.push(paths)
   }
 }
 

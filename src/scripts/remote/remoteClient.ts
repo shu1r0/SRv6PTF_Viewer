@@ -132,6 +132,17 @@ export class WSClient {
     })
   }
 
+  /**
+ * get SRv6 Flows
+ * @param callback 
+ */
+  getSRv6Flows(callback: (flowRes: any) => void) {
+    const data: any = ""
+    this.emit("get_srv6_flows", data, (data: string) => {
+      const flowRes = data
+      callback(flowRes)
+    })
+  }
 
   /**
    * target ip address

@@ -25,7 +25,7 @@
       <tr
           v-for="(content, index) in viewTable.contents"
           :key="'trace' + index"
-          @click="emitClickPacketPath(viewTable.paths[index])"
+          @click="onClickContent(index)"
           :class="[viewTable.classes[index]]">
         <td
           v-for="columnIndex in viewTable.columnNum"
@@ -40,25 +40,21 @@
 </template>
 
 <script lang="ts">
-import { ViewPathTable, ViewTable } from '@/scripts/utils/path_view'
+import { ViewFlowTable, ViewPathTable, ViewTable } from '@/scripts/utils/path_view'
 import { defineComponent, PropType, ref, watch, getCurrentInstance } from 'vue'
 
 export default defineComponent({
   props: {
-    srv6Paths: Object as PropType<any[]>
+    srv6Paths: Object as PropType<any[]>,
+    srv6Flows: Object as PropType<any[]>
   },
   setup(props, ctx) {
-    const viewTable = ref<ViewPathTable>(new ViewPathTable())
+    const viewTable = ref<ViewTable>(new ViewPathTable())
     const filter = ref<string>("")
     let emitedFilter = ""
-
-    // const forceUpdate = () => {
-    //   const instance = getCurrentInstance()
-    //   instance?.proxy?.$forceUpdate()
-    // }
-
+    
     watch(() => props.srv6Paths, (newPaths, oldPaths) => {
-      viewTable.value = new ViewPathTable()
+      const newViewTable = new ViewPathTable()
       newPaths?.forEach(path => {
         let styleClass = ""
         if(emitedFilter){
@@ -70,12 +66,36 @@ export default defineComponent({
             styleClass = mark.name
           }
         });
-        viewTable.value.addPath(path.packets, styleClass)
+        newViewTable.addPath(path.packets, styleClass)
       })
+      viewTable.value = newViewTable
     }, {deep: true})
+
+    watch(() => props.srv6Flows, (newFlows, oldFlows) => {
+      const newViewTable = new ViewFlowTable()
+      newFlows?.forEach(flow => {
+        newViewTable.addFlow(flow)
+      })
+      viewTable.value = newViewTable
+    }, {deep: true})
+
+    const onClickContent = (index: number) => {
+      const paths = viewTable.value.getContentPaths(index)
+      if(paths.length > 0){
+        if(Array.isArray(paths[0])){
+          emitClickPacketPathList(paths as string[][])
+        } else {
+          emitClickPacketPath(paths as string[])
+        }
+      }
+    }
 
     const emitClickPacketPath = (nodes: string[]) => {
       ctx.emit("clickPacketPath", nodes)
+    }
+
+    const emitClickPacketPathList = (nodes: string[][]) => {
+      ctx.emit("clickPacketPathList", nodes)
     }
 
     const filteredPathsRequest = (filter: string) => {
@@ -85,7 +105,7 @@ export default defineComponent({
 
     return {
       viewTable,
-      emitClickPacketPath,
+      onClickContent,
       filteredPathsRequest,
       filter
     }
@@ -107,6 +127,8 @@ export default defineComponent({
 
   #packet-list-table{
     width: 100%;
+    height: max(20rem);
+    overflow: scroll;
 
     .NoMark{
       display: none;

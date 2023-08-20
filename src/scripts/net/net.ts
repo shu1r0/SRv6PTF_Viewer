@@ -6,7 +6,7 @@
  */
 
 import cytoscape, { EventObject, Core, CollectionReturnValue, CytoscapeOptions, NodeSingular, EdgeSingular, ElementDefinition, CollectionArgument } from 'cytoscape'
-import { Host, SRv6Node, Link, NetElement, PacketArc } from './elements'
+import { Host, SRv6Node, Link, NetElement, PacketArc, FlowPacketArc } from './elements'
 // @ts-ignore
 import gtip from 'cytoscape-qtip'
 
@@ -70,6 +70,17 @@ export class SRv6Network {
         'line-color': '#ff0033',
         'curve-style': 'bezier',
         'width': 5,
+        // 'control-point-distance': 10,
+        // 'z-index': 0,
+      }
+    }, {
+      selector: '.flow-packet-arc',
+      style: {
+        'target-arrow-color': '#ff0033',
+        'target-arrow-shape': 'triangle',
+        'line-color': '#ff0033',
+        'curve-style': 'bezier',
+        'width': 2,
         // 'control-point-distance': 10,
         // 'z-index': 0,
       }
@@ -154,6 +165,12 @@ export class SRv6Network {
   addPacketArc(node1: string, node2: string, id?: string): PacketArc {
     id = id ?? this.getDefaultPacketArcId(node1, node2)
     const packetArc = new PacketArc(id, node1, node2)
+    return this.addNetElement(packetArc) as PacketArc
+  }
+
+  addFlowPacketArc(node1: string, node2: string, id?: string): PacketArc {
+    id = id ?? this.getDefaultPacketArcId(node1, node2)
+    const packetArc = new FlowPacketArc(id, node1, node2)
     return this.addNetElement(packetArc) as PacketArc
   }
 

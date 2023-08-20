@@ -4,6 +4,7 @@
       id="path-buttons">
         <button class="update-topology" @click="updateTopology()">update Topology</button>
         <button class="update-srv6paths" @click="updateSRv6Paths()">update SRv6 Paths</button>
+        <button class="update-srv6flows" @click="updateSRv6Flows()">update SRv6 Flows</button>
         <input type="text" name="columnNum" id="columnNum" v-model="columnNum">
     </div>
     <div 
@@ -16,7 +17,9 @@
 
       <packetListVue 
         :srv6Paths="srv6Paths"
+        :srv6Flows="srv6Flows"
         @clickPacketPath="onClickPacketPath"
+        @clickPacketPathList="onClickPacketPathList"
         @filteredPathsRequest="onFilteredPathsRequest">
       </packetListVue>
 
@@ -46,15 +49,16 @@ export default defineComponent({
     
     // ネットワーク
     let net: SRv6Network | undefined = undefined
-    // 得られたpaths
+    // 得られたpaths, flows
     const srv6Paths: Ref<any[]> = ref<any[]>([])
+    const srv6Flows: Ref<any[]> = ref<any[]>([])
 
     // 初期のX，Y
     const paddingX = 300
     const paddingY = 300
     // ノードの数
     let nodeCounter = 0
-    // 列数
+    // 列数 (テキストボックスから取得)
     const columnNum = ref<any>([8])
     // ノード間の距離
     const betweenNodesX = 170
@@ -63,19 +67,19 @@ export default defineComponent({
     watch(columnNum, (newNum, oldNum) => {
       columnNum.value = newNum.value.split(",").map((v: string) => {return parseInt(v, 10)})
       if(!columnNum.value){
+        // default value
         columnNum.value = [8]
       }
     })
 
     const onGetNodes = (nodes: any) => {
-      // columnNum.value = columnNum.value.split(",").map((v: string) => {return parseInt(v, 10)})
-      // if(!columnNum.value){
-      //   columnNum.value = [8]
-      // }
+
+      // row number for topology
       let rNum = 0
+      // column number for topology
       let cNum = columnNum.value[0]
+      // 行ごとのカウンタ
       let nodeCounterOnRaw = 0
-      console.log(columnNum.value)
 
       for(let node in nodes) {
         if (net) {
@@ -85,13 +89,13 @@ export default defineComponent({
           nodeCounter++
           nodeCounterOnRaw++
 
-          
+          // 指定がない場合，columnNum.value[0]を列数
           let tmpColumn = rNum < columnNum.value.length ? columnNum.value[rNum] : columnNum.value[0]
+          // 列数が指定と一致
           if(nodeCounterOnRaw - tmpColumn == 0){
             cNum = rNum+1 < columnNum.value.length ? columnNum.value[rNum+1] : columnNum.value[0]
             rNum++
             nodeCounterOnRaw = 0
-            // break
           }
         }else{
           console.error("No SRv6Network instance")
@@ -116,11 +120,18 @@ export default defineComponent({
       props.client?.getLinks(onGetLinks)
     }
 
+    // Get Paths, Flows
     const updateSRv6Paths = (filter?: string) => {
       props.client?.getSRv6Paths(pathRes => {
         const paths = pathRes.paths
         srv6Paths.value = paths
       }, filter)
+    }
+    const updateSRv6Flows = (filter?: string) => {
+      props.client?.getSRv6Flows(flowRes => {
+        const flows = flowRes.flows
+        srv6Flows.value = flows
+      })
     }
 
 
@@ -135,9 +146,11 @@ export default defineComponent({
       })
     })
 
+    // Table packet path is clicked
     const onClickPacketPath = (nodes: string[]) => {
       // remove path
       net?.remove(".packet-arc")
+      net?.remove(".flow-packet-arc")
 
       // draw path
       for(let i = 0; i < nodes.length - 1; i++) {
@@ -145,16 +158,30 @@ export default defineComponent({
       }
     }
 
+    const onClickPacketPathList = (nodes: string[][]) => {
+      net?.remove(".packet-arc")
+      net?.remove(".flow-packet-arc")
+
+      for(let i = 0; i < nodes.length; i++){
+        for(let j = 0; j < nodes[i].length - 1; j++){
+          net?.addFlowPacketArc(nodes[i][j], nodes[i][j+1])
+        }
+      }
+    }
+
     const onFilteredPathsRequest = (filter: string) => {
-      updateSRv6Paths(filter)
+      updateSRv6Paths(filter) 
     }
 
     return {
       columnNum,
       updateTopology,
       updateSRv6Paths,
+      updateSRv6Flows,
       srv6Paths,
+      srv6Flows,
       onClickPacketPath,
+      onClickPacketPathList,
       onFilteredPathsRequest
     }
   }

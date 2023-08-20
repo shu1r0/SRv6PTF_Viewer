@@ -112,3 +112,15 @@ export class PacketArc extends Link {
   }
 }
 
+
+/**
+ * Packet Arc on CYtoscape
+ */
+export class FlowPacketArc extends PacketArc {
+
+  constructor(id: string, src: string, dst: string) {
+    super(id, src, dst)
+    this.classes = "link flow-packet-arc"
+  }
+}
+
