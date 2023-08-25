@@ -66,6 +66,7 @@ export default defineComponent({
 
 html {
   font-size: 62.5%;  /* 1rem -> 10px */
+  background-color: $white;
 }
 
 #app {

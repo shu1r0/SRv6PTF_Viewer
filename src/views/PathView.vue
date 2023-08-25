@@ -190,7 +190,7 @@ export default defineComponent({
 
 <style lang="scss">
 .path-view-container{
-    button {
+  button {
     background: $navy;
     color: $white;
   }

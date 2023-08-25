@@ -117,13 +117,13 @@ export class ViewFlowTable implements ViewTable {
     const flowPaths: string[][] = flow.paths
 
     // add
-    this.addToContents(flowFiled.protocol, flowPaths.length, flowFiled, flowPaths)
+    this.addToContents(flow.flow_id, flowFiled.protocol, flowPaths.length, flowFiled, flowPaths)
     this.classes.push(["trace", styleClass ?? ""])
   }
 
-  private addToContents(protocol: number, count: number, flowKeys: any, paths: string[][]) {
+  private addToContents(flow_id: string, protocol: number, count: number, flowKeys: any, paths: string[][]) {
     this.contents.push(
-      ["", protocol.toString(), count.toString(), flowKeys]
+      [flow_id, protocol.toString(), count.toString(), flowKeys]
     )
     this.flowPaths.push(paths)
   }

@@ -115,6 +115,7 @@ export default defineComponent({
 
 <style lang="scss">
 .packet-list{
+  background-color: $white;
   font-size: 1.5rem;
   border: 1px solid $black;
   border-collapse: collapse;

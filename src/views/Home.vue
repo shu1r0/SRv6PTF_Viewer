@@ -58,6 +58,11 @@ export default defineComponent({
 .home {
   font-size: 2rem;
 
+  button {
+    background: $navy;
+    color: $white;
+  }
+
   .container-wssetting{
     label {
       display: block;
