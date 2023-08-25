@@ -1,10 +1,16 @@
 <template>
   <div class="home">
-    <p>This is Home page.</p>
-    <input type="text" name="ws-addr" id="ws-addr" v-model="wsAddr" style="width: 50%" placeholder="192.168.0.1">
-    <button @click="updateWsAddr(wsAddr)">update</button>
-    <input type="text" name="ws-port" id="ws-port" v-model="wsPort" style="width: 50%" placeholder="192.168.0.1">
-    <button @click="updateWsPort(wsPort)">update</button>
+    <p>This is Config page.</p>
+
+    <div class="container-wssetting">
+      <label for="ws-addr">WebSocket Server Address</label>
+      <input type="text" name="ws-addr" id="ws-addr" v-model="wsAddr" style="width: 50%" placeholder="192.168.0.1">
+      <button @click="updateWsAddr(wsAddr)">connect</button>
+      <label for="ws-port">WebSocket Server Port</label>
+      <input type="text" name="ws-port" id="ws-port" v-model="wsPort" style="width: 50%" placeholder="192.168.0.1">
+      <button @click="updateWsPort(wsPort)">connect</button>
+    </div>
+
   </div>
 </template>
 
@@ -25,7 +31,6 @@ export default defineComponent({
 
     const updateWsAddr = (addr?: string) => {
       if(addr){
-        console.log(addr)
         props.client?.setIp(addr)
         props.client?.connect()
       }
@@ -52,5 +57,11 @@ export default defineComponent({
 <style lang="scss">
 .home {
   font-size: 2rem;
+
+  .container-wssetting{
+    label {
+      display: block;
+    }
+  }
 }
 </style>

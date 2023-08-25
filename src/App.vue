@@ -6,8 +6,8 @@
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
         <summary><span class="material-symbols-outlined">menu</span></summary>
         <ul>
-          <li><a href="/">Viewer</a></li>
-          <li><a href="/home">HOME</a></li>
+          <li><router-link to="/">VIEWER</router-link ></li>
+          <li><router-link to="/home">HOME</router-link ></li>
         </ul>
       </details>
     </div>

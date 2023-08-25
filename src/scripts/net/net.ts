@@ -79,8 +79,10 @@ export class SRv6Network {
         'target-arrow-color': '#ff0033',
         'target-arrow-shape': 'triangle',
         'line-color': '#ff0033',
-        'curve-style': 'bezier',
-        'width': 2,
+        'curve-style': 'haystack',
+        'haystack-radius': 0.2,
+        'width': 1.6,
+        'line-opacity': 0.9,
         // 'control-point-distance': 10,
         // 'z-index': 0,
       }
@@ -168,8 +170,8 @@ export class SRv6Network {
     return this.addNetElement(packetArc) as PacketArc
   }
 
-  addFlowPacketArc(node1: string, node2: string, id?: string): PacketArc {
-    id = id ?? this.getDefaultPacketArcId(node1, node2)
+  addFlowPacketArc(node1: string, node2: string): PacketArc {
+    const id = this.getDefaultPacketArcId(node1, node2, true)
     const packetArc = new FlowPacketArc(id, node1, node2)
     return this.addNetElement(packetArc) as PacketArc
   }
@@ -295,9 +297,9 @@ export class SRv6Network {
    * @param node2 {string}
    * @returns 
    */
-  private getDefaultPacketArcId(node1: string, node2: string): string {
+  private getDefaultPacketArcId(node1: string, node2: string, alwaysRandom?: boolean): string {
     let id = "arc-" + node1 + node2
-    if (this.getNetElement(id) !== null) {
+    if (this.getNetElement(id) !== null || alwaysRandom) {
       id += Math.random()
     }
     return id

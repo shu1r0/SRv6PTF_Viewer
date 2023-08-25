@@ -123,7 +123,7 @@ export class ViewFlowTable implements ViewTable {
 
   private addToContents(protocol: number, count: number, flowKeys: any, paths: string[][]) {
     this.contents.push(
-      [protocol.toString(), count.toString(), flowKeys]
+      ["", protocol.toString(), count.toString(), flowKeys]
     )
     this.flowPaths.push(paths)
   }
