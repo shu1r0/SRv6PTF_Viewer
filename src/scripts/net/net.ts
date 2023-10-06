@@ -176,6 +176,12 @@ export class SRv6Network {
     return this.addNetElement(packetArc) as PacketArc
   }
 
+  /**
+   * remove elements
+   * 
+   * @param eles : element
+   * @returns 
+   */
   remove(eles: string | cytoscape.CollectionArgument) {
     return this.cytoscape.remove(eles)
   }
@@ -206,6 +212,9 @@ export class SRv6Network {
     throw Error("No Such NetElement (" + id + ")")
   }
 
+  /**
+   * remove all elements
+   */
   removeAllElement(): void {
     this.remove("*")
     this.hosts = []
@@ -232,22 +241,43 @@ export class SRv6Network {
     return null
   }
 
+  /**
+   * Is this element id including network.
+   * @param id : element id
+   * @returns boolean
+   */
   isNetElement(id: string): boolean {
     return this.getNetElement(id) !== null
   }
 
+  /**
+   * get hosts
+   * @returns 
+   */
   getHosts(): Host[] {
     return this.hosts
   }
 
+  /**
+   * get SRv6 Nodes
+   * @returns 
+   */
   getSRv6Nodes(): SRv6Node[] {
     return this.srv6Nodes
   }
 
+  /**
+   * Getter for links
+   * @returns 
+   */
   getLinks(): Link[] {
     return this.links
   }
 
+  /**
+   * Getter for other elements
+   * @returns 
+   */
   getOtherElements(): NetElement[] {
     return this.otherElements
   }

@@ -55,13 +55,28 @@ export class ViewPathTable implements ViewTable {
     const pathNodes: string[] = []
     const firstPacketObj: any = packets[0].packet_obj
     const packetId: number = packets[0].packet_id
-    let protocol = Object.keys(firstPacketObj)[0]
+    let protocol = ""
 
     // get protocol
-    if (Object.keys(firstPacketObj).length > 3) {  // inner Transport Layer Protocol (IP VPN)
-      protocol = Object.keys(firstPacketObj)[3]
-    } else if (Object.keys(firstPacketObj).length > 1) {  // outer Transport Layer Protocol
-      protocol = Object.keys(firstPacketObj)[1]
+    if (firstPacketObj) {
+      const pkt_layers: string[] = packets[0].packet_layers ?? Object.keys(firstPacketObj)
+      protocol = pkt_layers[pkt_layers.length - 1]
+
+      if (["Raw", "Padding"].includes(protocol)) {
+        if (protocol === "Raw") {
+          protocol = pkt_layers[pkt_layers.length - 2] + " (Raw)"
+        } else {
+          protocol = pkt_layers[pkt_layers.length - 2]
+        }
+      }
+      const find_inner = pkt_layers.find((key) => {
+        return key.includes("inner")
+      })
+      if (find_inner) {  // inner Transport Layer Protocol (IP VPN)
+        protocol = protocol + " - encap"
+      }
+    } else {
+      protocol = "Unknown"
     }
 
     // get path

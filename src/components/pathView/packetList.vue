@@ -52,25 +52,27 @@ export default defineComponent({
     const viewTable = ref<ViewTable>(new ViewPathTable())
     const filter = ref<string>("")
     let emitedFilter = ""
-    
+
+    // update view table (Packet)
     watch(() => props.srv6Paths, (newPaths, oldPaths) => {
       const newViewTable = new ViewPathTable()
       newPaths?.forEach(path => {
+        // set mark class
         let styleClass = ""
         if(emitedFilter){
           styleClass = "NoMark"
         }
         path.marks.forEach((mark: any) => {
-          // parse mark
-          if(mark.name == "FilteredMark"){
-            styleClass = mark.name
-          }
+          mark.replace(/&quot;/g,'"')
+          const m = JSON.parse(mark)
+          styleClass = m.name
         });
         newViewTable.addPath(path.packets, styleClass)
       })
       viewTable.value = newViewTable
     }, {deep: true})
 
+    // update view table (Flow)
     watch(() => props.srv6Flows, (newFlows, oldFlows) => {
       const newViewTable = new ViewFlowTable()
       newFlows?.forEach(flow => {
@@ -133,6 +135,13 @@ export default defineComponent({
 
     .NoMark{
       display: none;
+    }
+    
+    // Mark sytle
+    //TODO: No hardcording
+    .FilterNotMatchMark, .NotEqualMark, .NotSoftEqualMark, .NotViaNodeMark, .AddressNotInSRHMark {
+      color: black;
+      background-color: #B10F41;
     }
   }
 }
