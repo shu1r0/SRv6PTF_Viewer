@@ -9,14 +9,19 @@
       <label for="ws-port">WebSocket Server Port</label>
       <input type="text" name="ws-port" id="ws-port" v-model="wsPort" style="width: 50%" placeholder="192.168.0.1">
       <button @click="updateWsPort(wsPort)">connect</button>
+      <p> フローの表現: <br>
+        <input type="radio" v-model="flowRepresentation" id="number" value="number">矢印の数
+        <input type="radio" v-model="flowRepresentation" id="thickness" value="thickness">矢印の太さ
+      </p>
     </div>
 
   </div>
 </template>
 
 <script lang="ts">
-import { PropType, defineComponent } from 'vue';
+import { PropType, defineComponent, ref, watch } from 'vue';
 import { WSClient } from "../scripts/remote/remoteClient"; 
+import { viewConfig } from "@/App.vue";
 
 export default defineComponent({
   name: 'Home',
@@ -28,6 +33,7 @@ export default defineComponent({
   setup(props, ctx) {
     let wsAddr = props.client?.getIp()
     let wsPort = props.client?.getPort()
+    let flowRepresentation = ref<string>(viewConfig.flowRepresentation)
 
     const updateWsAddr = (addr?: string) => {
       if(addr){
@@ -42,12 +48,18 @@ export default defineComponent({
         props.client?.connect()
       }
     }
+
+    watch(flowRepresentation, (newRep, oldRep) => {
+      viewConfig.flowRepresentation = newRep
+    })
     
     return {
       wsAddr,
       wsPort,
       updateWsAddr,
-      updateWsPort
+      updateWsPort,
+      viewConfig,
+      flowRepresentation,
     }
   },
 });

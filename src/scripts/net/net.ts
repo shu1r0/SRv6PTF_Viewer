@@ -86,6 +86,11 @@ export class SRv6Network {
         // 'control-point-distance': 10,
         // 'z-index': 0,
       }
+    }, {
+      selector: ".bezier",
+      style: {
+        'curve-style': 'bezier',
+      }
     }]
     this.cytoscape = cytoscape(this.options)
 
@@ -93,6 +98,21 @@ export class SRv6Network {
     this.srv6Nodes = []
     this.links = []
     this.otherElements = []
+
+    // const removedHandler = (event: cytoscape.EventObject) => {
+    //   const removedElems = event.target
+    //   const removedElemIds: string[] = []
+    //   if (removedElems) {
+    //     removedElems.forEach((e: any) => {
+    //       console.debug("Cytoscape removed element id=" + e.id())
+    //       removedElemIds.push(e.id())
+    //     })
+    //   }
+    //   removedElemIds.forEach((id: string) => {
+    //     this.removeNetElement(id)
+    //   })
+    // }
+    // this.cytoscape.on('remove', removedHandler.bind(this))
   }
 
   /**
@@ -176,13 +196,52 @@ export class SRv6Network {
     return this.addNetElement(packetArc) as PacketArc
   }
 
+  private removeChache(element: NetElement | any) {
+    if (element instanceof Host) {
+      const index = this.hosts.indexOf(element)
+      if (index !== undefined) {
+        return this.hosts.splice(index, 1)[0]
+      } else {  // already deleted
+        return null
+      }
+    } else if (element instanceof SRv6Node) {
+      const index = this.srv6Nodes.indexOf(element)
+      if (index !== undefined) {
+        return this.srv6Nodes.splice(index, 1)[0]
+      } else {  // already deleted
+        return null
+      }
+    } else if (element instanceof Link) {
+      const index = this.links.indexOf(element)
+      if (index !== undefined) {
+        return this.links.splice(index, 1)[0]
+      } else {  // already deleted
+        return null
+      }
+    } else if (element instanceof NetElement) {
+      const index = this.otherElements.indexOf(element)
+      if (index !== undefined) {
+        return this.otherElements.splice(index, 1)[0]
+      } else {  // already deleted
+        return null
+      }
+    }
+
+    if (element) {
+      // console.log(element)
+      throw Error("No Such NetElement (ele: " + element + ")")
+    } else {
+      console.debug(element)
+    }
+  }
+
   /**
    * remove elements
    * 
    * @param eles : element
    * @returns 
    */
-  remove(eles: string | cytoscape.CollectionArgument) {
+  private remove(eles: string | cytoscape.CollectionArgument) {
     return this.cytoscape.remove(eles)
   }
 
@@ -191,25 +250,23 @@ export class SRv6Network {
    * 
    * @param id : removed element id
    */
-  removeNetElement(id: string): NetElement {
+  removeNetElement(id: string): NetElement | null {
     const element = this.getNetElement(id)
-    this.remove(this.cytoscape.$id(id))
+    this.remove(this.cytoscape.$id(element?.getId() as string))
+    this.removeChache(element)
+    return element
+  }
 
-    if (element instanceof Host) {
-      const index = this.hosts.indexOf(element)
-      return this.hosts.splice(index, 1)[0]
-    } else if (element instanceof SRv6Node) {
-      const index = this.srv6Nodes.indexOf(element)
-      return this.srv6Nodes.splice(index, 1)[0]
-    } else if (element instanceof Link) {
-      const index = this.links.indexOf(element)
-      return this.links.splice(index, 1)[0]
-    } else if (element instanceof NetElement) {
-      const index = this.otherElements.indexOf(element)
-      return this.otherElements.splice(index, 1)[0]
-    }
-
-    throw Error("No Such NetElement (" + id + ")")
+  removeAllPacketArcs(): void {
+    const removeTargets: string[] = []
+    this.getLinks().forEach((link) => {
+      if (link instanceof PacketArc) {
+        removeTargets.push(link.getId() as string)
+      }
+    })
+    removeTargets.forEach((id) => {
+      this.removeNetElement(id)
+    })
   }
 
   /**
@@ -233,12 +290,14 @@ export class SRv6Network {
    * @returns 
    */
   getNetElement(id: string): NetElement | null {
-    this.getAllNetElements().forEach(element => {
-      if (element.getId() === id) {
-        return element
+    let element = null
+    this.getAllNetElements().forEach(e => {
+      if (e.getId() === id) {
+        element = e
+        return
       }
     })
-    return null
+    return element
   }
 
   /**

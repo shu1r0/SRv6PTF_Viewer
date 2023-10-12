@@ -30,10 +30,11 @@
 <script lang="ts">
 import { defineComponent, Ref, ref, onActivated, onDeactivated, onMounted, PropType, watch } from 'vue'
 import { SRv6Network } from '@/scripts/net/net'
-import { NetElement } from '@/scripts/net/elements'
+import { FlowPacketArc, NetElement, PacketArc } from '@/scripts/net/elements'
 import { WSClient } from '@/scripts/remote/remoteClient'
 
 import packetListVue from '@/components/pathView/packetList.vue'
+import { viewConfig } from "@/App.vue";
 
 // import { DummyRemoteClient, RemoteClient } from '../api/remoteClient'
 // import { DEVICE_TYPE } from '@/vnet/devices'
@@ -149,8 +150,8 @@ export default defineComponent({
     // Table packet path is clicked
     const onClickPacketPath = (nodes: string[]) => {
       // remove path
-      net?.remove(".packet-arc")
-      net?.remove(".flow-packet-arc")
+      net?.removeAllPacketArcs()
+      
 
       // draw path
       for(let i = 0; i < nodes.length - 1; i++) {
@@ -159,13 +160,52 @@ export default defineComponent({
     }
 
     const onClickPacketPathList = (nodes: string[][]) => {
-      net?.remove(".packet-arc")
-      net?.remove(".flow-packet-arc")
+      net?.removeAllPacketArcs()
 
-      for(let i = 0; i < nodes.length; i++){
-        for(let j = 0; j < nodes[i].length - 1; j++){
-          net?.addFlowPacketArc(nodes[i][j], nodes[i][j+1])
-        }
+      // draw flow path
+      switch (viewConfig.flowRepresentation) {
+        case "number":
+          for(let i = 0; i < nodes.length; i++){
+            for(let j = 0; j < nodes[i].length - 1; j++){
+              net?.addFlowPacketArc(nodes[i][j], nodes[i][j+1])
+            }
+          }
+          break;
+        case "thickness":
+          for(let i = 0; i < nodes.length; i++){
+            for(let j = 0; j < nodes[i].length - 1; j++){
+              const node1 = nodes[i][j]
+              const node2 = nodes[i][j+1]
+              let find_arc = false
+              net?.getAllNetElements().forEach((link) => {
+                if(link instanceof FlowPacketArc){
+                  if(link.getSource() === node1 && link.getDestination() === node2){
+                    net?.removeNetElement(link.getId() as string)
+                    find_arc = true
+                    // increments width and label
+                    if(link.style?.width){
+                      link.style.width += viewConfig.flowThickness
+                      link.style.label = parseInt(link.style.label) + 1
+                    }else {
+                      link.style = {width: viewConfig.flowThickness, label: 1}
+                      link.addClass("bezier")
+                      console.warn("FlowPacketArc style does not have width")
+                    }
+                    net?.addNetElement(link)
+                    return
+                  }
+                }
+              });
+              if(!find_arc){
+                console.log("Not found link :" + node1 + " " + node2)
+                net?.addFlowPacketArc(node1, node2)
+              }
+            }
+          }
+          break;
+        default:
+          console.error("Unknown flow Representation " + viewConfig.flowRepresentation)
+          break;
       }
     }
 

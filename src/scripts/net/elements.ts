@@ -32,6 +32,13 @@ export class NetElement implements ElementDefinition {
   getName() {
     return this.data.name
   }
+
+  addClass(styClass: string) {
+    if (!this.classes) {
+      this.classes = ""
+    }
+    this.classes = this.classes + " " + styClass
+  }
 }
 
 /**

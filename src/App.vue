@@ -35,6 +35,11 @@ import config from "./assets/viewer_config.json";
 const WEBSOCKET_IPADDRESS = config.websocket.ip_address
 const WEBSOCKET_PORT = config.websocket.port
 
+export const viewConfig = {
+  flowRepresentation: "thickness",
+  flowThickness: 1,
+}
+
 export default defineComponent({
   name: "App",
   setup(){
