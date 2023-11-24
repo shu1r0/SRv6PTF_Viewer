@@ -56,6 +56,12 @@ export class ViewPathTable implements ViewTable {
     const firstPacketObj: any = packets[0].packet_obj
     const packetId: number = packets[0].packet_id
     let protocol = ""
+    // packet info
+    const packetInfo: PacketInfoForView = {
+      "ipv6_dst": "unknown",
+      "ipv6_src": "unknown",
+      "segment_list": ["unknown"],
+    }
 
     // get protocol
     if (firstPacketObj) {
@@ -75,6 +81,10 @@ export class ViewPathTable implements ViewTable {
       if (find_inner) {  // inner Transport Layer Protocol (IP VPN)
         protocol = protocol + " - encap"
       }
+
+      packetInfo.ipv6_dst = firstPacketObj.IPv6.dst
+      packetInfo.ipv6_src = firstPacketObj.IPv6.src
+      packetInfo.segment_list = firstPacketObj["IPv6 Option Header Segment Routing"].addresses
     } else {
       protocol = "Unknown"
     }
@@ -84,12 +94,6 @@ export class ViewPathTable implements ViewTable {
       pathNodes.push(p.node)
     })
 
-    // get packet info
-    const packetInfo: PacketInfoForView = {
-      "ipv6_dst": firstPacketObj.IPv6.dst,
-      "ipv6_src": firstPacketObj.IPv6.src,
-      "segment_list": firstPacketObj["IPv6 Option Header Segment Routing"].addresses
-    }
 
     // add
     this.addToContents(packetId, protocol, pathNodes, packetInfo)

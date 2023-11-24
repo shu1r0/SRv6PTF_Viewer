@@ -98,21 +98,6 @@ export class SRv6Network {
     this.srv6Nodes = []
     this.links = []
     this.otherElements = []
-
-    // const removedHandler = (event: cytoscape.EventObject) => {
-    //   const removedElems = event.target
-    //   const removedElemIds: string[] = []
-    //   if (removedElems) {
-    //     removedElems.forEach((e: any) => {
-    //       console.debug("Cytoscape removed element id=" + e.id())
-    //       removedElemIds.push(e.id())
-    //     })
-    //   }
-    //   removedElemIds.forEach((id: string) => {
-    //     this.removeNetElement(id)
-    //   })
-    // }
-    // this.cytoscape.on('remove', removedHandler.bind(this))
   }
 
   /**
@@ -231,7 +216,7 @@ export class SRv6Network {
       // console.log(element)
       throw Error("No Such NetElement (ele: " + element + ")")
     } else {
-      console.debug(element)
+      console.error("Unknown element type: " + typeof element)
     }
   }
 
@@ -257,6 +242,9 @@ export class SRv6Network {
     return element
   }
 
+  /**
+   * Remove all PacketArc
+   */
   removeAllPacketArcs(): void {
     const removeTargets: string[] = []
     this.getLinks().forEach((link) => {

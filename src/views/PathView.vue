@@ -184,8 +184,15 @@ export default defineComponent({
                     find_arc = true
                     // increments width and label
                     if(link.style?.width){
-                      link.style.width += viewConfig.flowThickness
                       link.style.label = parseInt(link.style.label) + 1
+                      // if(link.style.label <= 10){
+                      //   link.style.width = link.style.with + viewConfig.flowThickness
+                      // }else if (link.style.label <= 100) {
+                      //   link.style.width = link.style.with + viewConfig.flowThickness/10
+                      // } else {
+                      //   link.style.width = link.style.with + viewConfig.flowThickness/100
+                      // }
+                      link.style.width =  Math.log2(1 + viewConfig.flowThickness*link.style.label)
                     }else {
                       link.style = {width: viewConfig.flowThickness, label: 1}
                       link.addClass("bezier")
