@@ -5,7 +5,6 @@
         <button class="update-topology" @click="updateTopology()">update Topology</button>
         <button class="update-srv6paths" @click="updateSRv6Paths()">update SRv6 Paths</button>
         <button class="update-srv6flows" @click="updateSRv6Flows()">update SRv6 Flows</button>
-        <input type="text" name="columnNum" id="columnNum" v-model="columnNum">
     </div>
     <div 
       id="path-view"
@@ -29,12 +28,12 @@
 
 <script lang="ts">
 import { defineComponent, Ref, ref, onActivated, onDeactivated, onMounted, PropType, watch } from 'vue'
+import { useStore } from 'vuex'
 import { SRv6Network } from '@/scripts/net/net'
 import { FlowPacketArc, NetElement, PacketArc } from '@/scripts/net/elements'
 import { WSClient } from '@/scripts/remote/remoteClient'
 
 import packetListVue from '@/components/pathView/packetList.vue'
-import { viewConfig } from "@/App.vue";
 
 // import { DummyRemoteClient, RemoteClient } from '../api/remoteClient'
 // import { DEVICE_TYPE } from '@/vnet/devices'
@@ -47,7 +46,7 @@ export default defineComponent({
     client: Object as PropType<WSClient>
   },
   setup(props, ctx){
-    
+    const store = useStore()
     // ネットワーク
     let net: SRv6Network | undefined = undefined
     // 得られたpaths, flows
@@ -60,43 +59,36 @@ export default defineComponent({
     // ノードの数
     let nodeCounter = 0
     // 列数 (テキストボックスから取得)
-    const columnNum = ref<any>([8])
+    const columnNum = store.state.topoView.columnNum
     // ノード間の距離
     const betweenNodesX = 170
     const betweenNodesY = 150
 
-    watch(columnNum, (newNum, oldNum) => {
-      columnNum.value = newNum.value.split(",").map((v: string) => {return parseInt(v, 10)})
-      if(!columnNum.value){
-        // default value
-        columnNum.value = [8]
-      }
-    })
+    // フローに関する設定
+    const flowRepresentation = store.state.flowView.flowRepresentation
+    const flowThickness = store.state.flowView.flowThickness
 
     const onGetNodes = (nodes: any) => {
-
-      // row number for topology
+      // 対象の行
       let rNum = 0
-      // column number for topology
-      let cNum = columnNum.value[0]
-      // 行ごとのカウンタ
-      let nodeCounterOnRaw = 0
-
+      // 対象の列
+      let cNum = 0
+      // 対象の最大列数
+      let maxCNum = columnNum[0]
+      // トポロジの並び
       for(let node in nodes) {
         if (net) {
-          const x = paddingX + betweenNodesX*(nodeCounter % cNum)
+          const x = paddingX + betweenNodesX*cNum
           const y = paddingY + betweenNodesY*rNum
           net.addSRv6Node(node, x, y)
+          cNum++
           nodeCounter++
-          nodeCounterOnRaw++
-
-          // 指定がない場合，columnNum.value[0]を列数
-          let tmpColumn = rNum < columnNum.value.length ? columnNum.value[rNum] : columnNum.value[0]
-          // 列数が指定と一致
-          if(nodeCounterOnRaw - tmpColumn == 0){
-            cNum = rNum+1 < columnNum.value.length ? columnNum.value[rNum+1] : columnNum.value[0]
+          // 列数が最大に達すると，次の行へ
+          if(cNum === maxCNum){
+            // 更新する値が無いときは更新しない
+            maxCNum = rNum+1 < columnNum.length ? columnNum[rNum+1] : maxCNum
             rNum++
-            nodeCounterOnRaw = 0
+            cNum = 0
           }
         }else{
           console.error("No SRv6Network instance")
@@ -163,7 +155,7 @@ export default defineComponent({
       net?.removeAllPacketArcs()
 
       // draw flow path
-      switch (viewConfig.flowRepresentation) {
+      switch (flowRepresentation) {
         case "number":
           for(let i = 0; i < nodes.length; i++){
             for(let j = 0; j < nodes[i].length - 1; j++){
@@ -186,15 +178,15 @@ export default defineComponent({
                     if(link.style?.width){
                       link.style.label = parseInt(link.style.label) + 1
                       // if(link.style.label <= 10){
-                      //   link.style.width = link.style.with + viewConfig.flowThickness
+                      //   link.style.width = link.style.with + flowThickness
                       // }else if (link.style.label <= 100) {
-                      //   link.style.width = link.style.with + viewConfig.flowThickness/10
+                      //   link.style.width = link.style.with + flowThickness/10
                       // } else {
-                      //   link.style.width = link.style.with + viewConfig.flowThickness/100
+                      //   link.style.width = link.style.with + flowThickness/100
                       // }
-                      link.style.width =  Math.log2(1 + viewConfig.flowThickness*link.style.label)
+                      link.style.width =  Math.log2(1 + flowThickness*link.style.label)
                     }else {
-                      link.style = {width: viewConfig.flowThickness, label: 1}
+                      link.style = {width: flowThickness, label: 1}
                       link.addClass("bezier")
                       console.warn("FlowPacketArc style does not have width")
                     }
@@ -211,7 +203,7 @@ export default defineComponent({
           }
           break;
         default:
-          console.error("Unknown flow Representation " + viewConfig.flowRepresentation)
+          console.error("Unknown flow Representation " + flowRepresentation)
           break;
       }
     }
